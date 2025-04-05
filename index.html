@@ -92,6 +92,20 @@
         let artists = {};
         let songs = [];
         
+        function loadData() {
+            fetch('https://raw.githubusercontent.com/WonderSoundPL/LISTAWONDERSOUND/main/data.json') // URL do pliku JSON na GitHubie
+                .then(response => response.json())
+                .then(data => {
+                    artists = data.artists.reduce((acc, artist) => {
+                        acc[artist.name] = artist;
+                        return acc;
+                    }, {});
+                    songs = data.songs;
+                    renderCharts();
+                })
+                .catch(error => console.error('Błąd ładowania danych:', error));
+        }
+
         function addArtist() {
             let name = document.getElementById("artistName").value;
             if (name && !artists[name]) {
@@ -118,7 +132,7 @@
                     currentPosition: 100, 
                     lastTotalPosition: 100, 
                     currentTotalPosition: 100, 
-                    peakTotalPosition: 100, // Nowa wartość dla total streams
+                    peakTotalPosition: 100, 
                     daysOnChart: 0 
                 };
                 songs.push(song);
@@ -179,7 +193,7 @@
             songs.forEach((song, index) => {
                 song.lastTotalPosition = song.currentTotalPosition;
                 song.currentTotalPosition = index + 1;
-                song.peakTotalPosition = Math.min(song.peakTotalPosition, index + 1); // Aktualizacja peak Total Streams
+                song.peakTotalPosition = Math.min(song.peakTotalPosition, index + 1);
                 
                 let movement = "";
                 if (song.lastTotalPosition > song.currentTotalPosition) {
@@ -194,6 +208,8 @@
                 totalStreams.appendChild(songDiv);
             });
         }
+
+        loadData(); // Ładowanie danych z GitHub po załadowaniu strony
     </script>
 </body>
 </html>
