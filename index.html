@@ -89,35 +89,34 @@
     </div>
     
     <script>
-        let artists = {};
-        let songs = [];
-        
-        function loadData() {
-            fetch('https://raw.githubusercontent.com/WonderSoundPL/LISTAWONDERSOUND/main/data.json') // URL do pliku JSON na GitHubie
-                .then(response => response.json())
-                .then(data => {
-                    artists = data.artists.reduce((acc, artist) => {
-                        acc[artist.name] = artist;
-                        return acc;
-                    }, {});
-                    songs = data.songs;
-                    renderCharts();
-                })
-                .catch(error => console.error('Błąd ładowania danych:', error));
+        // Sprawdź, czy dane są zapisane w localStorage
+        let artists = JSON.parse(localStorage.getItem("artists")) || {};
+        let songs = JSON.parse(localStorage.getItem("songs")) || [];
+
+        // Załaduj artystów do selecta
+        function loadArtists() {
+            let artistSelect = document.getElementById("artistSelect");
+            artistSelect.innerHTML = '';  // Wyczyść obecne opcje
+            Object.keys(artists).forEach(artistName => {
+                let option = document.createElement("option");
+                option.value = artistName;
+                option.textContent = artistName;
+                artistSelect.appendChild(option);
+            });
         }
 
+        // Dodaj artystę
         function addArtist() {
             let name = document.getElementById("artistName").value;
             if (name && !artists[name]) {
                 artists[name] = { name: name, songs: [], totalStreams: 0 };
-                let option = document.createElement("option");
-                option.value = name;
-                option.textContent = name;
-                document.getElementById("artistSelect").appendChild(option);
+                saveData();
+                loadArtists();  // Ponownie załaduj artystów
                 document.getElementById("artistName").value = "";
             }
         }
-        
+
+        // Dodaj piosenkę
         function addSong() {
             let title = document.getElementById("songTitle").value;
             let artist = document.getElementById("artistSelect").value;
@@ -137,11 +136,13 @@
                 };
                 songs.push(song);
                 artists[artist].songs.push(song);
-                document.getElementById("songTitle").value = "";
+                saveData();  // Zapisz dane
                 renderCharts();
+                document.getElementById("songTitle").value = "";
             }
         }
-        
+
+        // Aktualizuj odtworzenia
         function updateStreams() {
             songs.forEach(song => {
                 if (song.totalStreams === 0) {
@@ -160,9 +161,17 @@
                 artists[song.artist].totalStreams += song.streams;
                 song.daysOnChart++;
             });
+            saveData();
             renderCharts();
         }
-        
+
+        // Zapisz dane do localStorage
+        function saveData() {
+            localStorage.setItem("artists", JSON.stringify(artists));
+            localStorage.setItem("songs", JSON.stringify(songs));
+        }
+
+        // Renderowanie wykresów i list
         function renderCharts() {
             songs.sort((a, b) => b.streams - a.streams);
             let global100 = document.getElementById("global100");
@@ -193,7 +202,7 @@
             songs.forEach((song, index) => {
                 song.lastTotalPosition = song.currentTotalPosition;
                 song.currentTotalPosition = index + 1;
-                song.peakTotalPosition = Math.min(song.peakTotalPosition, index + 1);
+                song.peakTotalPosition = Math.min(song.peakTotalPosition, index + 1); // Aktualizacja peak Total Streams
                 
                 let movement = "";
                 if (song.lastTotalPosition > song.currentTotalPosition) {
@@ -209,7 +218,9 @@
             });
         }
 
-        loadData(); // Ładowanie danych z GitHub po załadowaniu strony
+        // Załaduj artystów przy starcie
+        loadArtists();
+        renderCharts();
     </script>
 </body>
 </html>
