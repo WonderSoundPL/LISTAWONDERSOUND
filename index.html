@@ -64,16 +64,6 @@
         }
         .arrow-up { color: green; }
         .arrow-down { color: red; }
-        .edit-btn {
-            background-color: #ff9800;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            color: white;
-        }
-        .edit-btn:hover {
-            background-color: #f57c00;
-        }
     </style>
 </head>
 <body>
@@ -179,8 +169,7 @@
                 
                 let songDiv = document.createElement("div");
                 songDiv.className = "song";
-                songDiv.innerHTML = `${index + 1}. ${song.title} - ${song.artist} (${song.streams} aktualne odtworzenia) ${movement} | Peak: ${song.peakPosition} | Dni na liście: ${song.daysOnChart} 
-                                     <button class="edit-btn" onclick="editSong(${index})">Edytuj</button>`;
+                songDiv.innerHTML = `${index + 1}. ${song.title} - ${song.artist} (${song.streams} aktualne odtworzenia) ${movement} | Peak: ${song.peakPosition} | Dni: ${song.daysOnChart}`;
                 global100.appendChild(songDiv);
             });
 
@@ -201,21 +190,9 @@
                 
                 let songDiv = document.createElement("div");
                 songDiv.className = "song";
-                songDiv.innerHTML = `${index + 1}. ${song.title} - ${song.artist} (${song.totalStreams} sumaryczne odtworzenia) ${movement} | Peak: ${song.peakTotalPosition} | Dni na liście: ${song.daysOnChart}`;
+                songDiv.innerHTML = `${index + 1}. ${song.title} - ${song.artist} (${song.totalStreams} sumaryczne odtworzenia) ${movement} | Peak: ${song.peakTotalPosition} | Dni: ${song.daysOnChart}`;
                 totalStreams.appendChild(songDiv);
             });
-        }
-
-        function editSong(index) {
-            let song = songs[index];
-            let newTitle = prompt("Nowy tytuł piosenki:", song.title);
-            let newArtist = prompt("Nowy artysta:", song.artist);
-            if (newTitle && newArtist) {
-                song.title = newTitle;
-                song.artist = newArtist;
-                songs[index] = song;
-                renderCharts();
-            }
         }
     </script>
 </body>
