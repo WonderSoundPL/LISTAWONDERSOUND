@@ -85,38 +85,31 @@
         <h2>Total Streams</h2>
         <div id="totalStreams" class="song-list"></div>
         
+        <h2>Statystyki Piosenek</h2>
+        <div id="songStats" class="song-list"></div>
+        
+        <h2>Statystyki Artystów</h2>
+        <div id="artistStats" class="song-list"></div>
+        
         <button onclick="updateStreams()">Aktualizuj Odtworzenia</button>
     </div>
     
     <script>
-        // Sprawdź, czy dane są zapisane w localStorage
-        let artists = JSON.parse(localStorage.getItem("artists")) || {};
-        let songs = JSON.parse(localStorage.getItem("songs")) || [];
-
-        // Załaduj artystów do selecta
-        function loadArtists() {
-            let artistSelect = document.getElementById("artistSelect");
-            artistSelect.innerHTML = '';  // Wyczyść obecne opcje
-            Object.keys(artists).forEach(artistName => {
-                let option = document.createElement("option");
-                option.value = artistName;
-                option.textContent = artistName;
-                artistSelect.appendChild(option);
-            });
-        }
-
-        // Dodaj artystę
+        let artists = {};
+        let songs = [];
+        
         function addArtist() {
             let name = document.getElementById("artistName").value;
             if (name && !artists[name]) {
                 artists[name] = { name: name, songs: [], totalStreams: 0 };
-                saveData();
-                loadArtists();  // Ponownie załaduj artystów
+                let option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                document.getElementById("artistSelect").appendChild(option);
                 document.getElementById("artistName").value = "";
             }
         }
-
-        // Dodaj piosenkę
+        
         function addSong() {
             let title = document.getElementById("songTitle").value;
             let artist = document.getElementById("artistSelect").value;
@@ -131,18 +124,17 @@
                     currentPosition: 100, 
                     lastTotalPosition: 100, 
                     currentTotalPosition: 100, 
-                    peakTotalPosition: 100, 
+                    peakTotalPosition: 100, // Nowa wartość dla total streams
                     daysOnChart: 0 
                 };
                 songs.push(song);
                 artists[artist].songs.push(song);
-                saveData();  // Zapisz dane
-                renderCharts();
                 document.getElementById("songTitle").value = "";
+                renderCharts();
+                updateStats(); // Aktualizujemy statystyki po dodaniu piosenki
             }
         }
-
-        // Aktualizuj odtworzenia
+        
         function updateStreams() {
             songs.forEach(song => {
                 if (song.totalStreams === 0) {
@@ -161,17 +153,10 @@
                 artists[song.artist].totalStreams += song.streams;
                 song.daysOnChart++;
             });
-            saveData();
             renderCharts();
+            updateStats(); // Aktualizujemy statystyki po zaktualizowaniu odtworzeń
         }
-
-        // Zapisz dane do localStorage
-        function saveData() {
-            localStorage.setItem("artists", JSON.stringify(artists));
-            localStorage.setItem("songs", JSON.stringify(songs));
-        }
-
-        // Renderowanie wykresów i list
+        
         function renderCharts() {
             songs.sort((a, b) => b.streams - a.streams);
             let global100 = document.getElementById("global100");
@@ -218,9 +203,56 @@
             });
         }
 
-        // Załaduj artystów przy starcie
-        loadArtists();
-        renderCharts();
+        function renderSongStats() {
+            let songStatsDiv = document.getElementById("songStats");
+            songStatsDiv.innerHTML = ""; // Resetujemy statystyki
+
+            // Iterujemy przez wszystkie piosenki
+            songs.forEach(song => {
+                let songDiv = document.createElement("div");
+                songDiv.className = "song";
+                
+                songDiv.innerHTML = `
+                    <strong>${song.title}</strong> - ${song.artist} <br>
+                    <em>Odtworzenia: </em> ${song.totalStreams} <br>
+                    <em>Pozycja w Global 100: </em> ${song.currentPosition} <br>
+                    <em>Najwyższa pozycja: </em> ${song.peakPosition} <br>
+                    <em>Days on Chart: </em> ${song.daysOnChart} <br>
+                `;
+                
+                songStatsDiv.appendChild(songDiv);
+            });
+        }
+
+        function renderArtistStats() {
+            let artistStatsDiv = document.getElementById("artistStats");
+            artistStatsDiv.innerHTML = ""; // Resetujemy statystyki
+
+            // Iterujemy przez wszystkich artystów
+            for (let artistName in artists) {
+                let artist = artists[artistName];
+                
+                let artistDiv = document.createElement("div");
+                artistDiv.className = "song";
+                
+                let totalArtistStreams = artist.songs.reduce((total, song) => total + song.totalStreams, 0);
+                
+                artistDiv.innerHTML = `
+                    <strong>${artist.name}</strong> <br>
+                    <em>Łączna liczba odtworzeń: </em> ${totalArtistStreams} <br>
+                    <em>Najwięcej odtworzeń przez piosenkę: </em> ${Math.max(...artist.songs.map(song => song.totalStreams))} <br>
+                    <em>Liczba piosenek: </em> ${artist.songs.length} <br>
+                `;
+                
+                artistStatsDiv.appendChild(artistDiv);
+            }
+        }
+
+        // Wywołujemy funkcje aktualizacji statystyk
+        function updateStats() {
+            renderSongStats();
+            renderArtistStats();
+        }
     </script>
 </body>
 </html>
