@@ -1,0 +1,10 @@
+{
+  "artists": [
+    { "name": "Artysta 1", "songs": ["Piosenka 1", "Piosenka 2"] },
+    { "name": "Artysta 2", "songs": ["Piosenka 3", "Piosenka 4"] }
+  ],
+  "songs": [
+    { "title": "Piosenka 1", "artist": "Artysta 1", "streams": 5000000, "totalStreams": 15000000 },
+    { "title": "Piosenka 2", "artist": "Artysta 1", "streams": 7000000, "totalStreams": 17000000 }
+  ]
+}
