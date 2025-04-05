@@ -5,14 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WonderSound</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #121212; color: white; }
-        .container { max-width: 800px; margin: auto; }
-        button { padding: 10px; margin: 10px; background-color: #1db954; color: white; border: none; cursor: pointer; }
-        input, select { padding: 5px; margin: 5px; }
-        .song-list { margin-top: 20px; }
-        .song { padding: 10px; background: #222; margin: 5px; display: flex; justify-content: space-between; align-items: center; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background-color: #121212; 
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: auto; 
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #00bcd4;
+            text-transform: uppercase;
+        }
+        button { 
+            padding: 12px 24px; 
+            margin: 10px; 
+            background-color: #1db954; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover { 
+            background-color: #1ed760; 
+        }
+        input, select { 
+            padding: 8px; 
+            margin: 8px; 
+            border-radius: 5px;
+            border: 1px solid #333;
+            background-color: #222;
+            color: white;
+        }
+        .song-list { 
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .song { 
+            padding: 15px; 
+            background: #333; 
+            margin: 10px 0; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .song:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 188, 212, 0.2);
+        }
         .arrow-up { color: green; }
         .arrow-down { color: red; }
+        .edit-btn {
+            background-color: #ff9800;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #f57c00;
+        }
     </style>
 </head>
 <body>
@@ -118,7 +179,8 @@
                 
                 let songDiv = document.createElement("div");
                 songDiv.className = "song";
-                songDiv.innerHTML = `${index + 1}. ${song.title} - ${song.artist} (${song.streams} aktualne odtworzenia) ${movement} | Peak: ${song.peakPosition} | Dni na liście: ${song.daysOnChart}`;
+                songDiv.innerHTML = `${index + 1}. ${song.title} - ${song.artist} (${song.streams} aktualne odtworzenia) ${movement} | Peak: ${song.peakPosition} | Dni na liście: ${song.daysOnChart} 
+                                     <button class="edit-btn" onclick="editSong(${index})">Edytuj</button>`;
                 global100.appendChild(songDiv);
             });
 
@@ -142,6 +204,18 @@
                 songDiv.innerHTML = `${index + 1}. ${song.title} - ${song.artist} (${song.totalStreams} sumaryczne odtworzenia) ${movement} | Peak: ${song.peakTotalPosition} | Dni na liście: ${song.daysOnChart}`;
                 totalStreams.appendChild(songDiv);
             });
+        }
+
+        function editSong(index) {
+            let song = songs[index];
+            let newTitle = prompt("Nowy tytuł piosenki:", song.title);
+            let newArtist = prompt("Nowy artysta:", song.artist);
+            if (newTitle && newArtist) {
+                song.title = newTitle;
+                song.artist = newArtist;
+                songs[index] = song;
+                renderCharts();
+            }
         }
     </script>
 </body>
